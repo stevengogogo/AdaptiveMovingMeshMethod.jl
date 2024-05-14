@@ -9,18 +9,167 @@ jupyter: julia-1.10
 cd("code")
 ```
 
+## Equidistribution ^[[@huang2011, p. 28]]
+
+For a continuous function $\rho = \rho(x) > 0$, $x\in [a,b]$. The *equidistribution* finds a mesh $\mathcal{J}_h:x_1 = a < x_2 < \dots < x_N = b$ subh that 
+
+$$
+\int^{x_2}_{x_1}  \rho (x) dx = \dots = \int^{x_N}_{x_{N-1}} \rho(x) dx
+$${#eq-equi-int}
+
+where 
+
+- $\rho$: mesh density specification function
+
+
+::: {#prp-equidist}
+
+## Unique equdistributing mesh of $N$ points
+
+For $\rho > 0$, there exists a unique equidistributing mesh of $N$ points
+
+$$
+\int^{x_j}_{a} \rho(x)dx = \frac{j-1}{N-1}\sigma, \quad j = 1,\dots, N
+$$
+
+where 
+
+$$
+\sigma = \int^{b}_{a} \rho(x) dx
+$$
+
+:::
+
+
+Fror computation. Rewrite @eq-equi-int as 
+
+$$
+(x_j - x_{j-1})\braket{\rho}_{I_j} = \frac{\sigma}{(N-1)}, \quad j=2,\dots, N
+$$
+
+- $I_j = (x_{j-1}, x_j)$
+- $\braket{\rho}_{I_j}$: integral average of $\rho(x)$. 
+    $$
+    \braket{\rho}_{I_j} = \frac{1}{x_j - x_{j-1}}\int^{x_j}_{x_{j-1}} \rho(x) dx
+    $$
+
+
+By coordinate transformation, $x = x(\xi):[0,1] \to [a,b]$:
+
+$$
+x_j = x(\xi_j), \quad j=1,\dots, N
+$$
+
+
+where 
+
+$$\xi_j = \frac{j-1}{N-1}, \quad j=1, \dots, N$$
+
+A uniform mesh on $[0,1]$, then 
+
+$$
+\int^{x(\xi_j)}_{a} \rho(x) dx = \sigma \xi, \quad \forall \xi \in (0,1)
+$$
+
+By differentiating with respect to $\xi$, 
+
+$$
+\rho(x) \frac{dx}{d\xi} = \sigma
+$$
+
+
+
+
 ## De Boor's Algorithm ^[[@huang2011, p. 36]]
 
 Suppose a mesh density functoin is known on arbitrary background mesh:
 
 $$
-\mathcal{}
+\mathcal{J}_{b}: y_1 = a < y_2 < \dots < y_K = b
 $$
+
+The idea is to approxmate $\rho = \rho(x)$ on the background mesh by piecewise constant function: 
+
+$$
+p(x) = \begin{cases}
+    \frac{1}{2}(\rho(y_1) + \rho(y_2)), x \in [y_1, y_2) \\
+    \frac{1}{2}(\rho(y_{k-1}) + \rho(y_k)), x \in (y_{k-1}, y_k]\\
+    \dots\\
+    \frac{1}{2}(\rho(y_{K-1} + \rho(y_k))), x \in (y_{K-1}, y_K]
+\end{cases}
+$$
+
+
+Find equidistributing mesh for the piecewise constant function. Denoting
+  
+$$
+P(x) = \int^{x}_{a} p(x) dx
+$$
+
+Then 
+
+$$
+P(y_j) = \sum^{j}_{i=2}(y_i - y_{i-1})\frac{\rho(y_i) + \rho(y_{i-1})}{2}, \quad j = 2, \dots, L
+$$
+
+
+The equadistributing can be interpreted as 
+
+$$
+P(x_j) = \xi_j P(b=y_K), \quad j=2,\dots, N-1
+$$
+
+Since $P(x)$ is piecewise linear, $x_j$ can be calculated from 
+
+$$
+(x_j - y_{k-1})\frac{\rho(y_{k-1}) + \rho(y_k)}{2} = \xi_j p(b) - p(y_{k-1})
+$$
+
+$$
+x_j = y_{k-1} + \frac{2(\xi_j P(b) - P(y_{k-1}))}{\rho(y_{k-1}) + \rho(y_k)}, \quad 2 \leq j \leq N-1
+$$
+
+
+The converged mesh satisfies
+$$
+(\hat{x}_j - \hat{x}_{j-1}) \frac{\rho(\hat{x}_{j-1}) + \rho(\hat{x}_j)}{2} = (\xi_j - \xi_{j-1})\hat{\sigma}_h
+$$
+
+:::{.callout}
+:::{#def-quality}
+## Equidistribution quality measure
+
+$$
+Q_{eq}(x) = \frac{\rho x_{\xi}}{\sigma}
+$$
+
+The discrete version is 
+
+$$
+Q_{eq, j} = \frac{\rho(x_j) + \rho(x_{j-1})}{2\sigma_h}\cdot \frac{x_j - x_{j-1}}{\xi_j - \xi_{j-1}}, \quad j=2,\dots, N
+$$
+
+where 
+
+$$
+\sigma_h = \sum^{N}_{j=2}\frac{x_j - x_{j-1}}{\xi_j - \xi_{j-1}} \cdot \frac{\rho(x_j) + \rho(x_{j-1})}{2}
+$$
+
+:::
+:::
+
 
 
 ## Example 2.2.1
 
-Code
+Consider the mesh density function 
+
+$$
+\begin{split}
+\rho(x) &= 1 + 20 (1-\tanh^2 (20 (x - 0.25))) + 30(1 - \tanh^2(30(x - 0.5)))\\
+&+ 10 (1 - \tanh^2(10(x - 0.75))), \quad x\in [0,1]
+\end{split}
+$$
 
 ```{julia}
 {{< include code/example_2_2_1.jl >}}

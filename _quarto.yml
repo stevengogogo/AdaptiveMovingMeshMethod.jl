@@ -9,4 +9,16 @@ book:
     - index.qmd
     - Ch2.qmd
     - ref.qmd
+  navbar:
+    background: maroon
+    right:
+      - icon: github
+        href: https://github.com/stevengogogo/AdaptiveMovingMeshMethod.jl
+
 bibliography: ref.bib
+
+format:
+  html:
+    theme: 
+      light: default
+      dark: solar
