@@ -1,0 +1,35 @@
+---
+title: "Chapter 2"
+subtitle: "Adaptive Mesh Movement in 1D"
+jupyter: julia-1.10
+---
+
+```{julia}
+#| echo: false
+cd("code")
+```
+
+## De Boor's Algorithm ^[[@huang2011, p. 36]]
+
+Suppose a mesh density functoin is known on arbitrary background mesh:
+
+$$
+\mathcal{}
+$$
+
+
+## Example 2.2.1
+
+Code
+
+```{julia}
+{{< include code/example_2_2_1.jl >}}
+```
+
+
+
+## Computational Environment 
+
+```{julia}
+Pkg.status()
+```

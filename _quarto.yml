@@ -1,0 +1,12 @@
+project:
+  type: book
+
+book:
+  title: "Julia Implementation for Adaptive Moving Mesh Methods"
+  author: "Steven Chiu (stchiu@tamu.edu)"
+  date: today
+  chapters:
+    - index.qmd
+    - Ch2.qmd
+    - ref.qmd
+bibliography: ref.bib

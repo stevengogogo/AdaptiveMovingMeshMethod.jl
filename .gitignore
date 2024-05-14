@@ -1,0 +1,6 @@
+.quarto
+.DS_Store
+*_files
+/.quarto/
+Manifest.toml
+_book
