@@ -1,0 +1,132 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Julia Implementation for Adaptive Moving Mesh Methods",
+    "section": "",
+    "text": "This book is a collection of notes and exercieses for the textbook “Adaptive Moving Mesh Methods” (Huang and Russell 2011) with Julia Implementation. The source code of the book can be found at MMPDELab in Matlab.\n\n\n\n\nHuang, Weizhang, and Robert D. Russell. 2011. Adaptive Moving Mesh Methods. Vol. 174. Applied Mathematical Sciences. New York, NY: Springer New York. https://doi.org/10.1007/978-1-4419-7916-2.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Preface</span>"
+    ]
+  },
+  {
+    "objectID": "Ch2-2.html",
+    "href": "Ch2-2.html",
+    "title": "2  Chapter 2.2",
+    "section": "",
+    "text": "2.1 Equidistribution 1\nFor a continuous function \\(\\rho = \\rho(x) &gt; 0\\), \\(x\\in [a,b]\\). The equidistribution finds a mesh \\(\\mathcal{J}_h:x_1 = a &lt; x_2 &lt; \\dots &lt; x_N = b\\) subh that\n\\[\n\\int^{x_2}_{x_1}  \\rho (x) dx = \\dots = \\int^{x_N}_{x_{N-1}} \\rho(x) dx\n\\tag{2.1}\\]\nwhere\nFror computation. Rewrite Equation 2.1 as\n\\[\n(x_j - x_{j-1})\\braket{\\rho}_{I_j} = \\frac{\\sigma}{(N-1)}, \\quad j=2,\\dots, N\n\\]\nBy coordinate transformation, \\(x = x(\\xi):[0,1] \\to [a,b]\\):\n\\[\nx_j = x(\\xi_j), \\quad j=1,\\dots, N\n\\]\nwhere\n\\[\\xi_j = \\frac{j-1}{N-1}, \\quad j=1, \\dots, N\\]\nA uniform mesh on \\([0,1]\\), then\n\\[\n\\int^{x(\\xi_j)}_{a} \\rho(x) dx = \\sigma \\xi, \\quad \\forall \\xi \\in (0,1)\n\\]\nBy differentiating with respect to \\(\\xi\\),\n\\[\n\\rho(x) \\frac{dx}{d\\xi} = \\sigma\n\\]",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Chapter 2.2</span>"
+    ]
+  },
+  {
+    "objectID": "Ch2-2.html#equidistribution",
+    "href": "Ch2-2.html#equidistribution",
+    "title": "2  Chapter 2.2",
+    "section": "",
+    "text": "\\(\\rho\\): mesh density specification function\n\n\nProposition 2.1 (Unique equdistributing mesh of \\(N\\) points) For \\(\\rho &gt; 0\\), there exists a unique equidistributing mesh of \\(N\\) points\n\\[\n\\int^{x_j}_{a} \\rho(x)dx = \\frac{j-1}{N-1}\\sigma, \\quad j = 1,\\dots, N\n\\]\nwhere\n\\[\n\\sigma = \\int^{b}_{a} \\rho(x) dx\n\\]\n\n\n\n\n\\(I_j = (x_{j-1}, x_j)\\)\n\\(\\braket{\\rho}_{I_j}\\): integral average of \\(\\rho(x)\\). \\[\n  \\braket{\\rho}_{I_j} = \\frac{1}{x_j - x_{j-1}}\\int^{x_j}_{x_{j-1}} \\rho(x) dx\n  \\]",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Chapter 2.2</span>"
+    ]
+  },
+  {
+    "objectID": "Ch2-2.html#de-boors-algorithm",
+    "href": "Ch2-2.html#de-boors-algorithm",
+    "title": "2  Chapter 2.2",
+    "section": "2.2 De Boor’s Algorithm 2",
+    "text": "2.2 De Boor’s Algorithm 2\nSuppose a mesh density functoin is known on arbitrary background mesh:\n\\[\n\\mathcal{J}_{b}: y_1 = a &lt; y_2 &lt; \\dots &lt; y_K = b\n\\]\nThe idea is to approxmate \\(\\rho = \\rho(x)\\) on the background mesh by piecewise constant function:\n\\[\np(x) = \\begin{cases}\n    \\frac{1}{2}(\\rho(y_1) + \\rho(y_2)), x \\in [y_1, y_2) \\\\\n    \\frac{1}{2}(\\rho(y_{k-1}) + \\rho(y_k)), x \\in (y_{k-1}, y_k]\\\\\n    \\dots\\\\\n    \\frac{1}{2}(\\rho(y_{K-1} + \\rho(y_k))), x \\in (y_{K-1}, y_K]\n\\end{cases}\n\\]\nFind equidistributing mesh for the piecewise constant function. Denoting\n\\[\nP(x) = \\int^{x}_{a} p(x) dx\n\\]\nThen\n\\[\nP(y_j) = \\sum^{j}_{i=2}(y_i - y_{i-1})\\frac{\\rho(y_i) + \\rho(y_{i-1})}{2}, \\quad j = 2, \\dots, L\n\\]\nThe equadistributing can be interpreted as\n\\[\nP(x_j) = \\xi_j P(b=y_K), \\quad j=2,\\dots, N-1\n\\]\nSince \\(P(x)\\) is piecewise linear, \\(x_j\\) can be calculated from\n\\[\n(x_j - y_{k-1})\\frac{\\rho(y_{k-1}) + \\rho(y_k)}{2} = \\xi_j p(b) - p(y_{k-1})\n\\]\n\\[\nx_j = y_{k-1} + \\frac{2(\\xi_j P(b) - P(y_{k-1}))}{\\rho(y_{k-1}) + \\rho(y_k)}, \\quad 2 \\leq j \\leq N-1\n\\]\nThe converged mesh satisfies \\[\n(\\hat{x}_j - \\hat{x}_{j-1}) \\frac{\\rho(\\hat{x}_{j-1}) + \\rho(\\hat{x}_j)}{2} = (\\xi_j - \\xi_{j-1})\\hat{\\sigma}_h\n\\]\n\n\n\n\n\n\n\nDefinition 2.1 (Equidistribution quality measure) \\[\nQ_{eq}(x) = \\frac{\\rho x_{\\xi}}{\\sigma}\n\\]\nThe discrete version is\n\\[\nQ_{eq, j} = \\frac{\\rho(x_j) + \\rho(x_{j-1})}{2\\sigma_h}\\cdot \\frac{x_j - x_{j-1}}{\\xi_j - \\xi_{j-1}}, \\quad j=2,\\dots, N\n\\]\nwhere\n\\[\n\\sigma_h = \\sum^{N}_{j=2}\\frac{x_j - x_{j-1}}{\\xi_j - \\xi_{j-1}} \\cdot \\frac{\\rho(x_j) + \\rho(x_{j-1})}{2}\n\\]",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Chapter 2.2</span>"
+    ]
+  },
+  {
+    "objectID": "Ch2-2.html#sec-example-2-2-1",
+    "href": "Ch2-2.html#sec-example-2-2-1",
+    "title": "2  Chapter 2.2",
+    "section": "2.3 Example 2.2.1",
+    "text": "2.3 Example 2.2.1\nConsider the mesh density function\n\\[\n\\begin{split}\n\\rho(x) &= 1 + 20 (1-\\tanh^2 (20 (x - 0.25))) + 30(1 - \\tanh^2(30(x - 0.5)))\\\\\n&+ 10 (1 - \\tanh^2(10(x - 0.75))), \\quad x\\in [0,1]\n\\end{split}\n\\]\n\n\"\"\"\nExample 2.2.1\n\"\"\"\n\nusing Pkg;\nPkg.activate(\".\");\nusing LinearAlgebra\nusing Plots\n\nfunction ρ(x)\n    1.0 + 20.0 * (1.0 - tanh(20 * (x - 0.25))^2) + 30.0 * (1.0 - tanh(30 * (x - 0.5))^2) + 10.0 * (1.0 - tanh(10 * (x - 0.75))^2)\nend\n\nfunction P(ys, ρ::F) where {F&lt;:Function}\n    len = length(ys)\n    y_right = view(ys, 2:len)\n    y_left = view(ys, 1:len-1)\n    y_diff = y_right .- y_left\n    ρ_sum = ρ.(y_right) .+ ρ.(y_left)\n    ps = cumsum(ρ_sum .* y_diff ./ 2)\n    return [0; ps] # ∫ᵃₐ = 0\nend\n\nfunction x_init(a, b, ngrid)\n    return range(a, b, length=ngrid)\nend\n\nfunction get_ξs(ngrid)\n    return range(0, 1, length=ngrid)\nend\n\nfunction step(ys, ρ::F) where {F&lt;:Function}\n    Ps = P(ys, ρ)\n    ξs = get_ξs(length(ys))\n    ξPb = ξs[2:end-1] .* Ps[end]\n    ks_l = searchsortedlast.(Ref(Ps), ξPb)\n    ks_r = ks_l .+ 1\n    xs_inter = @. ys[ks_l] + 2 * (ξPb - Ps[ks_l]) / (ρ(ys[ks_l]) + ρ(ys[ks_r]))\n    xs = [ys[1]; xs_inter; ys[end]]\n    return xs\nend\n\nfunction find_equidist(xs_init, ρ::F, maxIter=10000, tol=1e-8) where {F&lt;:Function}\n    xs = copy(xs_init)\n    qs = []\n    status = :fail\n    for _ in 1:maxIter\n        xs_new = step(xs, ρ)\n        if norm(xs_new - xs) &lt; 1e-8\n            status = :success\n            break\n        end\n        xs = xs_new\n        qs = [qs; Quality(xs, ρ)]\n    end\n    if status == :fail\n        @warn \"Failed to find equidistribution points\"\n    end\n    return (grid=xs, quality=qs, status=status)\nend\n\nfunction Quality(xs, ρ::F) where {F&lt;:Function}\n    ξs = get_ξs(length(xs))\n    x_diff = @. xs[2:end] - xs[1:end-1]\n    ξ_diff = @. ξs[2:end] - ξs[1:end-1]\n    σₕ = sum(@. (x_diff) * (ρ(xs[2:end]) + ρ(xs[1:end-1])) / 2)\n    Qs = @. (x_diff / ξ_diff) * (ρ(xs[2:end]) + ρ(xs[1:end-1])) / (2 * σₕ)\n    Qmax = maximum(abs.(Qs))\n    return Qmax\nend\n\nfunction plot_result(xs, ρ) where {F&lt;:Function}\n    p = plot()\n    plot!(p, ρ, 0, 1, label=\"ρ(x)\")\n    xlabel!(p, \"x\")\n    ylabel!(p, \"ρ(x)\")\n    scatter!(p, xs, ρ.(xs), label=\"equidistant points\")\n    return p\nend\n\n# Derivation\nys = x_init(0, 1, 81)\nres = find_equidist(ys, ρ)\nQmax = Quality(res.grid, ρ)\n\n# Display result\np1 = plot_result(res.grid, ρ)\np2 = plot(res.quality, label=\"Quality\", xlabel=\"Iteration\", ylabel=\"Quality\", legend=:bottomright)\nps = plot(p1, p2, layout=(1, 2))\ndisplay(ps)\n\n  Activating project at `~/Documents/github/AdaptiveMovingMeshMethod.jl/code`\nWARNING: method definition for plot_result at In[3]:72 declares type variable F but does not use it.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Chapter 2.2</span>"
+    ]
+  },
+  {
+    "objectID": "Ch2-2.html#boundary-value-problem",
+    "href": "Ch2-2.html#boundary-value-problem",
+    "title": "2  Chapter 2.2",
+    "section": "2.4 Boundary Value Problem",
+    "text": "2.4 Boundary Value Problem\nThe \\(x(\\xi)\\) satisfies the quasi-linear second-order differential equation:\n\\[\n\\frac{d}{d\\xi} \\left(\\rho(x) \\frac{dx}{d\\xi}\\right) = 0\n\\tag{2.2}\\]\nwith\n\\[\nx(0) = a, x(1) = b\n\\]\nEquation 2.2 can be sovled by minimizing variation formulation of corrdinate transformation:\n\\[\nI[x] = \\frac{1}{2}\\int^{1}_{0} \\left( \\rho(x)\\frac{dx}{d\\xi} \\right)^2 d\\xi\n\\tag{2.3}\\]\nThis is useful for multi-dimensinal case. Equation 2.3 is Equation 2.2 ’s Euler-Lagrange equation. The proof can be derived by apply an arbitrary function \\(\\delta x(0) = \\delta x(1) = 0\\), and \\(I[x+\\epsilon \\delta x]\\) 3.\nBy changing dependent variable,\n\\[\nI[\\xi] = \\frac{1}{2} \\int^{b}_{a} \\frac{1}{\\rho(x)}\\left(\\frac{d\\xi}{dx}\\right)^2 dx\n\\tag{2.4}\\]\nUnlike Equation 2.3, Equation 2.4 is a linear equation.\nEquation 2.2 can be discretized on computational mesh \\(\\mathbb{J}_{h}^c: \\xi_j, j=1,\\dots, N\\) with central finite differences:\n\\[\n\\begin{split}   \n    \\frac{1}{(\\xi_{j+1} - \\xi_{j-1})/2} \\left( \\frac{\\rho(x^{(n)}_{j+1}) + \\rho(x^{(n)}_{j})}{2} \\cdot \\frac{x^{(n+1)}_{j+1} - x^{(n+1)}_{j}}{\\xi_{j+1} - \\xi_j} - \\frac{\\rho(x^{(n)}_{j}) + \\rho(x^{(n)}_{j-1})}{2} \\cdot \\frac{x^{(n+1)}_{j} - x^{(n+1)}_{j-1}}{\\xi_{j} - \\xi_{j-1}}  \\right)\n\\end{split}\n\\tag{2.5}\\]\nKeeping \\(\\rho\\) fixed for the current iteration, the system is also fixed with boundarty condition:\n\\[\nx^{(n+1)}_1 = a, \\quad x^{(n+1)}_N = b\n\\]\n\n\n\n\n\n\nHow to solve Equation 2.5?\n\n\n\n\\[\n\\begin{bmatrix}\n   * & * & \\dots & \\dots\\\\\n     & * & * & \\dots\n\\end{bmatrix} \\begin{bmatrix} x_2 \\\\ \\vdots\\\\ x_{N-1}\\end{bmatrix} + \\begin{bmatrix} * x_1 \\\\ 0\\\\\\vdots \\\\ * x_N \\end{bmatrix} = \\begin{bmatrix}0 \\\\ \\vdots \\\\ 0 \\end{bmatrix}\n\\]",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Chapter 2.2</span>"
+    ]
+  },
+  {
+    "objectID": "Ch2-2.html#computational-environment",
+    "href": "Ch2-2.html#computational-environment",
+    "title": "2  Chapter 2.2",
+    "section": "2.5 Computational Environment",
+    "text": "2.5 Computational Environment\n\nPkg.status()\n\nStatus `~/Documents/github/AdaptiveMovingMeshMethod.jl/code/Project.toml`\n  [91a5bcdd] Plots v1.40.4\n  [37e2e46d] LinearAlgebra\n\n\n\n\n\n\nHuang, Weizhang, and Robert D. Russell. 2011. Adaptive Moving Mesh Methods. Vol. 174. Applied Mathematical Sciences. New York, NY: Springer New York. https://doi.org/10.1007/978-1-4419-7916-2.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Chapter 2.2</span>"
+    ]
+  },
+  {
+    "objectID": "Ch2-2.html#footnotes",
+    "href": "Ch2-2.html#footnotes",
+    "title": "2  Chapter 2.2",
+    "section": "",
+    "text": "(Huang and Russell 2011, 174:28)↩︎\n(Huang and Russell 2011, 174:36)↩︎\n(Huang and Russell 2011, 174:40)↩︎",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Chapter 2.2</span>"
+    ]
+  },
+  {
+    "objectID": "Ch2-3.html",
+    "href": "Ch2-3.html",
+    "title": "3  Chapter 2.3",
+    "section": "",
+    "text": "3.1 MMPDEs as coordinate transformation 1\nUse boundary value problem to coordinate transformation \\(x=x(\\xi, t)\\)\n\\[\n\\begin{split}\n    &\\frac{\\partial}{\\partial \\xi}\\left( \\rho(x,t)\\frac{\\partial x}{\\partial \\xi} \\right) = 0\\\\\n    &x(0,t) = a, x(1,t) = b\n\\end{split}\n\\tag{3.1}\\]\nThe moving mesh to minimize Equation 3.1 is by Euler-lagrange equation\n\\[\nI[\\xi] = \\frac{1}{2}\\int^{b}_{a} \\frac{1}{\\rho(x,t)}\\left(\\frac{\\partial \\xi}{\\partial x}\\right)^2 dx\n\\]\nThe direction for \\(\\xi\\) that reduces \\(I[\\xi]\\) is given by the gradient:\n\\[\n\\frac{\\partial \\xi}{\\partial t} = - \\frac{P}{\\tau}\\frac{\\delta I}{\\delta \\xi}\n\\]\nAlso,\n\\[\n\\frac{\\delta I}{\\delta \\xi} = - \\frac{\\partial}{\\partial x}\\left(\\frac{1}{\\rho}\\frac{\\partial \\xi}{\\partial x}\\right)\n\\]\nCombining together,\n\\[\n\\frac{\\partial \\xi}{\\partial t} = \\frac{P}{\\tau}\\frac{\\partial}{\\partial x}\\left(\\frac{1}{\\rho} \\frac{\\partial \\xi}{\\partial x}\\right)\n\\tag{3.2}\\]\nSince Equation 3.2 is the path for computational domain, the physical domain path can be derived by chaning dependen/independent variables:\n\\[\n\\frac{\\partial x}{\\partial t} = \\frac{1}{\\tau}\\frac{\\partial x}{\\partial \\xi} P\\left( \\rho \\frac{\\partial x}{\\partial \\xi} \\right)^{ -2} \\left( \\frac{\\partial x}{\\partial \\xi} \\right)^{-1} \\frac{\\partial}{\\partial \\xi}\\left(\\rho \\frac{\\partial x}{\\partial \\xi}\\right)\n\\]\nChoose \\(P = (\\rho x_\\xi)^2\\):\n\\[\n(\\text{MMPDE5}): \\quad \\frac{\\partial x}{\\partial t} = \\frac{1}{\\tau} \\frac{\\partial}{\\partial \\xi} \\left(\\rho \\frac{\\partial x}{\\partial \\xi}\\right)\n\\]\nAnother choise of \\(P = (\\rho x_\\xi)^2 / \\rho\\) to make mesh more spatially balanced throughout the physical domain:\n\\[\n(\\text{modified MMPDE5}): \\frac{\\partial x}{\\partial t} = \\frac{1}{\\tau \\rho}\\frac{\\partial}{\\partial \\xi} \\left( \\rho \\frac{\\partial x}{\\partial \\xi}\\right)\n\\tag{3.3}\\]\nDicretization of Equation 3.3 can be done with central finite differences on uniform computational mesh on\n\\[\n\\frac{dx_j}{dt} = \\frac{1}{\\rho_j \\tau \\Delta \\xi^2} \\left[ \\frac{\\rho_{j+1} + \\rho_j}{2}(x_{j+1} - x_j) - \\frac{\\rho_j + \\rho_{j-1}}{2} (x_{j} - x_{j-1}) \\right]\n\\tag{3.4}\\]\nwhere \\(x_j = x(\\xi_j, t)\\), \\(\\rho_j = \\rho(x_j, t)\\), and \\(\\Delta \\xi = \\xi_{j+1} - \\xi_j\\).\nfor \\(j=2, \\dots, N-1\\), \\(x_j \\approx x(\\xi_i, t)\\) and \\(\\rho_j = \\rho(x_j,t)\\). The dependence of \\(rho\\) on \\(x\\) and \\(t\\) is by physical solution \\(u=u(x,t)\\) such that\n\\[\n\\rho_j = \\rho(u(x_j, t))\n\\]",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Chapter 2.3</span>"
+    ]
+  },
+  {
+    "objectID": "Ch2-3.html#mmpdes-as-coordinate-transformation",
+    "href": "Ch2-3.html#mmpdes-as-coordinate-transformation",
+    "title": "3  Chapter 2.3",
+    "section": "",
+    "text": "\\(\\tau &gt; 0\\): user specified parameter for adjusting the response time of mesh movement of changes in \\(\\rho(x,t)\\)\n\\(P\\): positive-definite differential operator",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Chapter 2.3</span>"
+    ]
+  },
+  {
+    "objectID": "Ch2-3.html#example-2.3.1",
+    "href": "Ch2-3.html#example-2.3.1",
+    "title": "3  Chapter 2.3",
+    "section": "3.2 Example 2.3.1",
+    "text": "3.2 Example 2.3.1\nUse Equation 3.3 to solve Section 2.3\n\n\"\"\"\nExample 2.3.1\n\"\"\"\n\nusing Pkg;\nPkg.activate(\".\");\nusing LinearAlgebra\nusing Plots\n\n  Activating project at `~/Documents/github/AdaptiveMovingMeshMethod.jl/code`\n\n\n\n\n\n\nHuang, Weizhang, and Robert D. Russell. 2011. Adaptive Moving Mesh Methods. Vol. 174. Applied Mathematical Sciences. New York, NY: Springer New York. https://doi.org/10.1007/978-1-4419-7916-2.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Chapter 2.3</span>"
+    ]
+  },
+  {
+    "objectID": "Ch2-3.html#footnotes",
+    "href": "Ch2-3.html#footnotes",
+    "title": "3  Chapter 2.3",
+    "section": "",
+    "text": "(Huang and Russell 2011, 174:43)↩︎",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Chapter 2.3</span>"
+    ]
+  },
+  {
+    "objectID": "ref.html",
+    "href": "ref.html",
+    "title": "4  References",
+    "section": "",
+    "text": "Huang, Weizhang, and Robert D. Russell. 2011. Adaptive Moving\nMesh Methods. Vol. 174. Applied Mathematical\nSciences. New York, NY: Springer New York. https://doi.org/10.1007/978-1-4419-7916-2.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>References</span>"
+    ]
+  }
+]
