@@ -1,6 +1,6 @@
 ---
-title: "Chapter 2"
-subtitle: "Adaptive Mesh Movement in 1D"
+title: "Chapter 2.2"
+subtitle: "Computation of equidistributing meshes"
 jupyter: julia-1.10
 ---
 
@@ -160,7 +160,7 @@ $$
 
 
 
-## Example 2.2.1
+## Example 2.2.1 {#sec-example-2-2-1}
 
 Consider the mesh density function 
 
@@ -175,6 +175,64 @@ $$
 {{< include code/example_2_2_1.jl >}}
 ```
 
+## Boundary Value Problem 
+
+
+The $x(\xi)$ satisfies the quasi-linear second-order differential equation:
+
+$$
+\frac{d}{d\xi} \left(\rho(x) \frac{dx}{d\xi}\right) = 0
+$${#eq-x-xi-diff}
+
+with 
+
+$$
+x(0) = a, x(1) = b
+$$
+
+@eq-x-xi-diff can be sovled by minimizing variation formulation of corrdinate transformation: 
+
+$$
+I[x] = \frac{1}{2}\int^{1}_{0} \left( \rho(x)\frac{dx}{d\xi} \right)^2 d\xi
+$${#eq-x-xi-euler}
+
+This is useful for multi-dimensinal case. @eq-x-xi-euler is @eq-x-xi-diff 's Euler-Lagrange equation. The proof can be derived by apply an arbitrary function $\delta x(0) = \delta x(1) = 0$, and $I[x+\epsilon \delta x]$ ^[[@huang2011, p. 40]].
+
+By changing dependent variable, 
+
+$$
+I[\xi] = \frac{1}{2} \int^{b}_{a} \frac{1}{\rho(x)}\left(\frac{d\xi}{dx}\right)^2 dx
+$${#eq-xi-x-euler}
+
+Unlike @eq-x-xi-euler, @eq-xi-x-euler is a linear equation.
+
+
+@eq-x-xi-diff can be discretized on computational mesh $\mathbb{J}_{h}^c: \xi_j, j=1,\dots, N$ with central finite differences:
+
+
+$$
+\begin{split}   
+    \frac{1}{(\xi_{j+1} - \xi_{j-1})/2} \left( \frac{\rho(x^{(n)}_{j+1}) + \rho(x^{(n)}_{j})}{2} \cdot \frac{x^{(n+1)}_{j+1} - x^{(n+1)}_{j}}{\xi_{j+1} - \xi_j} - \frac{\rho(x^{(n)}_{j}) + \rho(x^{(n)}_{j-1})}{2} \cdot \frac{x^{(n+1)}_{j} - x^{(n+1)}_{j-1}}{\xi_{j} - \xi_{j-1}}  \right)
+\end{split}
+$${#eq-iter}
+
+Keeping $\rho$ fixed for the current iteration, the system is also fixed with boundarty condition:
+
+$$
+x^{(n+1)}_1 = a, \quad x^{(n+1)}_N = b
+$$
+
+:::{.callout-tip}
+## How to solve @eq-iter?
+
+$$
+\begin{bmatrix}
+   * & * & \dots & \dots\\
+     & * & * & \dots
+\end{bmatrix} \begin{bmatrix} x_2 \\ \vdots\\ x_{N-1}\end{bmatrix} + \begin{bmatrix} * x_1 \\ 0\\\vdots \\ * x_N \end{bmatrix} = \begin{bmatrix}0 \\ \vdots \\ 0 \end{bmatrix}
+$$
+
+:::
 
 
 ## Computational Environment 

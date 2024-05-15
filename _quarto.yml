@@ -7,7 +7,8 @@ book:
   date: today
   chapters:
     - index.qmd
-    - Ch2.qmd
+    - Ch2-2.qmd
+    - Ch2-3.qmd
     - ref.qmd
   navbar:
     background: maroon

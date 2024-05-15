@@ -1,0 +1,92 @@
+---
+title: "Chapter 2.3"
+subtitle: "Moving Mesh PDE"
+jupyter: julia-1.10
+---
+
+```{julia}
+#| echo: false
+cd("code")
+```
+
+## MMPDEs as coordinate transformation ^[[@huang2011, p. 43]]
+
+Use boundary value problem to coordinate transformation $x=x(\xi, t)$
+
+$$
+\begin{split}
+    &\frac{\partial}{\partial \xi}\left( \rho(x,t)\frac{\partial x}{\partial \xi} \right) = 0\\ 
+    &x(0,t) = a, x(1,t) = b
+\end{split}
+$${#eq-euler-xi}
+
+The moving mesh to minimize @eq-euler-xi is  by Euler-lagrange equation 
+
+$$
+I[\xi] = \frac{1}{2}\int^{b}_{a} \frac{1}{\rho(x,t)}\left(\frac{\partial \xi}{\partial x}\right)^2 dx
+$$
+
+The direction for $\xi$ that reduces $I[\xi]$ is given by the gradient:
+
+
+
+$$
+\frac{\partial \xi}{\partial t} = - \frac{P}{\tau}\frac{\delta I}{\delta \xi}
+$$
+
+- $\tau > 0$: user specified parameter for adjusting the response time of mesh movement of changes in $\rho(x,t)$
+- $P$: positive-definite differential operator
+
+Also, 
+
+
+$$
+\frac{\delta I}{\delta \xi} = - \frac{\partial}{\partial x}\left(\frac{1}{\rho}\frac{\partial \xi}{\partial x}\right)
+$$
+
+Combining together,
+
+$$
+\frac{\partial \xi}{\partial t} = \frac{P}{\tau}\frac{\partial}{\partial x}\left(\frac{1}{\rho} \frac{\partial \xi}{\partial x}\right)
+$${#eq-xi}
+
+Since @eq-xi is the path for computational domain, the physical domain path can be derived by chaning dependen/independent variables:
+
+$$
+\frac{\partial x}{\partial t} = \frac{1}{\tau}\frac{\partial x}{\partial \xi} P\left( \rho \frac{\partial x}{\partial \xi} \right)^{ -2} \left( \frac{\partial x}{\partial \xi} \right)^{-1} \frac{\partial}{\partial \xi}\left(\rho \frac{\partial x}{\partial \xi}\right)
+$$
+
+Choose $P = (\rho x_\xi)^2$:
+
+$$
+(\text{MMPDE5}): \quad \frac{\partial x}{\partial t} = \frac{1}{\tau} \frac{\partial}{\partial \xi} \left(\rho \frac{\partial x}{\partial \xi}\right)
+$$
+
+Another choise of $P = (\rho x_\xi)^2 / \rho$ to make mesh more spatially balanced throughout the physical domain:
+
+$$
+(\text{modified MMPDE5}): \frac{\partial x}{\partial t} = \frac{1}{\tau \rho}\frac{\partial}{\partial \xi} \left( \rho \frac{\partial x}{\partial \xi}\right)
+$${#eq-mod-mmpde-5}
+
+
+Dicretization of @eq-mod-mmpde-5 can be done with *central finite differences* on *uniform computational mesh* on 
+
+$$
+\frac{dx_j}{dt} = \frac{1}{\rho_j \tau \Delta \xi^2} \left[ \frac{\rho_{j+1} + \rho_j}{2}(x_{j+1} - x_j) - \frac{\rho_j + \rho_{j-1}}{2} (x_{j} - x_{j-1}) \right]
+$${#eq-discretized-mmpde-5}
+
+where $x_j = x(\xi_j, t)$, $\rho_j = \rho(x_j, t)$, and $\Delta \xi = \xi_{j+1} - \xi_j$.
+
+for $j=2, \dots, N-1$, $x_j \approx x(\xi_i, t)$ and $\rho_j = \rho(x_j,t)$. The dependence of $rho$ on $x$ and $t$ is by physical solution $u=u(x,t)$ such that 
+
+$$
+\rho_j = \rho(u(x_j, t))
+$$
+
+## Example 2.3.1
+
+Use  @eq-mod-mmpde-5 to solve @sec-example-2-2-1
+
+```{julia}
+{{< include code/example_2_3_1.jl >}}
+```
