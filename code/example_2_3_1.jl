@@ -12,10 +12,10 @@ function ρ(x)
     1.0 + 20.0 * (1.0 - tanh(20 * (x - 0.25))^2) + 30.0 * (1.0 - tanh(30 * (x - 0.5))^2) + 10.0 * (1.0 - tanh(10 * (x - 0.75))^2)
 end
 
-function mmpde5!(dx, x, p, t)
+function mmpde5_modified!(dx, x, p, t)
     τ, Δξ = p 
 
-    # Bounday mesh
+    # Bounday mesh in physical domain
     dx[1] = 0.0 
     dx[end] = 0.0
 
@@ -53,7 +53,7 @@ ngrid = 81
 p = (τ=1., Δξ=1. / (ngrid -1))
 tspan = (0., 1.)
 x_init = collect(range(0, 1, length=ngrid))
-prob = ODEProblem(mmpde5!, collect(x_init), tspan, p)
+prob = ODEProblem(mmpde5_modified!, collect(x_init), tspan, p)
 sol = solve(prob, ImplicitEuler())
 
 # Plot

@@ -6,7 +6,6 @@ jupyter: julia-1.10
 
 ```{julia}
 #| echo: false
-cd("code")
 ```
 
 ## MMPDEs as coordinate transformation ^[[@huang2011, p. 43]]
@@ -23,7 +22,7 @@ $${#eq-euler-xi}
 The moving mesh to minimize @eq-euler-xi is  by Euler-lagrange equation 
 
 $$
-I[\xi] = \frac{1}{2}\int^{b}_{a} \frac{1}{\rho(x,t)}\left(\frac{\partial \xi}{\partial x}\right)^2 dx
+I[\xi] = \frac{1}{2}\int^{b}_{a} \frac{1}{\rho(x,{\color{red}{t}})}\left(\frac{\partial \xi}{\partial x}\right)^2 dx
 $$
 
 The direction for $\xi$ that reduces $I[\xi]$ is given by the gradient:
@@ -90,3 +89,59 @@ Use  @eq-mod-mmpde-5 to solve @sec-example-2-2-1
 ```{julia}
 {{< include code/example_2_3_1.jl >}}
 ```
+
+
+
+## MMPDE as inverse corrdintate tranformation ^[[@huang2011, p. 50]]
+
+Use inverse coordinate transformation $\xi(x,t)$: 
+
+$$
+(\text{MMPDE5xi})\quad \frac{\partial \xi}{\partial t} = \frac{1}{\tau} \frac{\partial}{\partial}(\frac{1}{\rho}\frac{\partial \xi}{\partial x})
+$${#eq-mmpde5xi}
+
+|Physical mesh|Computational mesh|
+|---|---|
+|$\mathcal{J}_{h}^{n}: x_{j}^{n}\approx x(\xi_j, t_n), j=1,\dots, N$|$\mathcal{J}_{h}^{c}: \xi_j = \frac{j-1}{N-1}, j=1,\dots, N$|
+
+Discretization of @eq-mmpde5xi becomes 
+
+$$
+\begin{split}
+\frac{\xi^{n+1}_j - \xi^{n}_{j}}{\Delta t} &= \frac{2}{\tau (x^{n}_{j+1} - x^{n}_{j-1})} \left( \frac{\xi^{n+1}_{j+1} - \xi^{n+1}_{j}}{x^{n}_{j+1} - x^{n}_j}\frac{2}{\rho^{n}_{j+1} + \rho^{n}_{j}}\\
+- \frac{\xi^{n+1}_j - \xi^{n+1}_{j-1}}{x^{n}_j - x^{n}_{j-1}} \frac{2}{\rho^{n}_j + \rho^{n}_{j-1}}\right)
+\end{split}
+$${#eq-xi-d}
+
+boundary conditions 
+
+$$
+\begin{split}
+    \xi^{n+1}_1 &= 0\\
+    \xi^{n+1}_N &= 1
+\end{split}
+$${#eq-xi-bc}
+
+@eq-xi-d and @eq-xi-bc gives new computational mesh:
+
+$$
+\mathcal{J}^{c, n+1}_h : \xi^{n+1}_j, j = 1, \dots, N
+$$
+
+Since mesh density function is computed at $t=t_n$. $\rho^{n}_j = \rho(x^{n}_j, t_n)$. Thus
+
+- @eq-xi-d is linear 
+- There is time lagging problem
+
+
+**Advantages of inverse coordinate transformation**
+
+|Physical to Comp.|Comp. to Physical|
+|---|---|
+|$\frac{d}{d\xi}\left(\rho(x(\xi))\frac{dx(\xi)}{d\xi}\right)=0$|$\frac{d}{dx}\left(\frac{1}{\rho(x)} \frac{d\xi(x)}{dx}\right)=0$|
+|Quasi-linear second-order DE|Linear second-order DE|
+||Linearity -> easy to ensure existence, uniqueness and well-poseness in multi-dimensions|
+
+### Example 2.3.2
+
+Assume $\tau=1$, use MMPDE5xi [@eq-mmpde5xi] to solve @sec-example-2-2-1
