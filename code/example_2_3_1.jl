@@ -49,7 +49,7 @@ end
 
 
 # Derive equidistant points
-ngrid = 41
+ngrid = 81
 p = (τ=1., Δξ=1. / (ngrid -1))
 tspan = (0., 1.)
 x_init = collect(range(0, 1, length=ngrid))
@@ -58,6 +58,6 @@ sol = solve(prob, ImplicitEuler())
 
 # Plot
 plt1 = plot_result(sol(tspan[end]), ρ)
-plt2 = plot(Quality.(sol.(0:0.01:1), Ref(ρ)), xlabel="Iteration", ylabel="Quality", label="Quality", legend=:topright)
+plt2 = plot(Quality.(sol.(0:0.01:1), Ref(ρ)), xlabel="Time", ylabel="Quality", label="Quality", legend=:topright)
 plts = plot(plt1, plt2, layout=(1, 2))
 display(plts)
