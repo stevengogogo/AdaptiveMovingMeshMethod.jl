@@ -21,9 +21,18 @@ function ρ(x)
     1.0 + 20.0 * (1.0 - tanh(20 * (x - 0.25))^2) + 30.0 * (1.0 - tanh(30 * (x - 0.5))^2) + 10.0 * (1.0 - tanh(10 * (x - 0.75))^2)
 end
 
+function Quality(xs, ρ::F) where {F<:Function}
+    ξs = range(0,1,length(xs))
+    x_diff = @. xs[2:end] - xs[1:end-1]
+    ξ_diff = @. ξs[2:end] - ξs[1:end-1]
+    σₕ = sum(@. (x_diff) * (ρ(xs[2:end]) + ρ(xs[1:end-1])) / 2)
+    Qs = @. (x_diff / ξ_diff) * (ρ(xs[2:end]) + ρ(xs[1:end-1])) / (2 * σₕ)
+    Qmax = maximum(abs.(Qs))
+    return Qmax
+end
+
 function mmpde5xi!(dξ, ξ, p, t)
-    τ, interf = p 
-    xs = interf.(ξ)
+    τ, xs = p 
     # Boundary mesh in computational domain
     dξ[1] = 0.0
     dξ[end] = 0.
@@ -38,27 +47,32 @@ function mmpde5xi!(dξ, ξ, p, t)
     end
 end
 
-function interp!(int)
+
+function affect!(int)
     ξ = int.u
-    xs = int.p[2].(ξ)
-    int.p[2] = linear_interpolation(ξ, xs, extrapolation_bc=Line())
-    p[2] = int.p[2]
+    xs = int.p[2]
+    interf = linear_interpolation(ξ, xs)
+    xs_new = interf.(range(0, stop=1, length=length(ξ))[2:end-1])
+    xs_new = [0.; xs_new; 1.] # set boundary points at physical domain
+    int.p[2] = xs_new
 end
+
 condition = function (u, t, integrator)
     true
 end
 
-event = ContinuousCallback(condition, interp!)
-ngrid = 100
+event = DiscreteCallback(condition, affect!)
+ngrid = 81
 ξ0 = collect(range(0, stop=1, length=100))
 x0 = collect(range(0, stop=1, length=100))
-interf = linear_interpolation(ξ0, x0, extrapolation_bc=Line()) # ξ→x
-p = [1.0, interf]
+p = [1.0, x0]
 tspan = (0., 1.)
 prob = ODEProblem{true}(mmpde5xi!, ξ0, tspan, p)
-sol = solve(prob, ImplicitEuler(), callback = event)
+sol = solve(prob, Tsit5(), callback = event)
 
 
 # plot 
-xs = p[2].(sol(tspan[end]))
+xs = p[2]
 plt1 = plot_result(xs, ρ)
+display(plt1)
+@show Quality(xs, ρ)
