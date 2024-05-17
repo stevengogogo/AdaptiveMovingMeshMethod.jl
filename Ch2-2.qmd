@@ -172,6 +172,7 @@ $$
 $$
 
 ```{julia}
+#| warning: false
 {{< include code/example_2_2_1.jl >}}
 ```
 
