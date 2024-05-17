@@ -87,6 +87,7 @@ $$
 Use  @eq-mod-mmpde-5 to solve @sec-example-2-2-1
 
 ```{julia}
+#| warning: false
 {{< include code/example_2_3_1.jl >}}
 ```
 
@@ -145,3 +146,8 @@ Since mesh density function is computed at $t=t_n$. $\rho^{n}_j = \rho(x^{n}_j, 
 ### Example 2.3.2
 
 Assume $\tau=1$, use MMPDE5xi [@eq-mmpde5xi] to solve @sec-example-2-2-1
+
+```{julia}
+#| warning: false
+{{< include code/example_2_3_2.jl >}}
+```
