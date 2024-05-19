@@ -151,3 +151,14 @@ Assume $\tau=1$, use MMPDE5xi [@eq-mmpde5xi] to solve @sec-example-2-2-1
 #| warning: false
 {{< include code/example_2_3_2.jl >}}
 ```
+
+
+:::{.callout-note}
+## Why does $\xi$ move in time?
+
+@eq-xi-d might be counterintuitive in the beginning. This can be interptet as: 
+
+1. The mapping of $\xi$ to $x$ is not optimal when progresses in time. So every time step, we use $x^{n}$ and $\xi^{n+1}$ to approximate the mapping.
+2. Another equidistribution at $n+1$ is achieved by mapping $x^{n+1}$ from uniform $\xi$
+
+:::
