@@ -1,0 +1,164 @@
+---
+title: "Chapter 2.3"
+subtitle: "Moving Mesh PDE"
+jupyter: julia-1.10
+---
+
+```{julia}
+#| echo: false
+```
+
+## MMPDEs as coordinate transformation ^[[@huang2011, p. 43]]
+
+Use boundary value problem to coordinate transformation $x=x(\xi, t)$
+
+$$
+\begin{split}
+    &\frac{\partial}{\partial \xi}\left( \rho(x,t)\frac{\partial x}{\partial \xi} \right) = 0\\ 
+    &x(0,t) = a, x(1,t) = b
+\end{split}
+$${#eq-euler-xi}
+
+The moving mesh to minimize @eq-euler-xi is  by Euler-lagrange equation 
+
+$$
+I[\xi] = \frac{1}{2}\int^{b}_{a} \frac{1}{\rho(x,{\color{red}{t}})}\left(\frac{\partial \xi}{\partial x}\right)^2 dx
+$$
+
+The direction for $\xi$ that reduces $I[\xi]$ is given by the gradient:
+
+
+
+$$
+\frac{\partial \xi}{\partial t} = - \frac{P}{\tau}\frac{\delta I}{\delta \xi}
+$$
+
+- $\tau > 0$: user specified parameter for adjusting the response time of mesh movement of changes in $\rho(x,t)$
+- $P$: positive-definite differential operator
+
+Also, 
+
+
+$$
+\frac{\delta I}{\delta \xi} = - \frac{\partial}{\partial x}\left(\frac{1}{\rho}\frac{\partial \xi}{\partial x}\right)
+$$
+
+Combining together,
+
+$$
+\frac{\partial \xi}{\partial t} = \frac{P}{\tau}\frac{\partial}{\partial x}\left(\frac{1}{\rho} \frac{\partial \xi}{\partial x}\right)
+$${#eq-xi}
+
+Since @eq-xi is the path for computational domain, the physical domain path can be derived by chaning dependen/independent variables:
+
+$$
+\frac{\partial x}{\partial t} = \frac{1}{\tau}\frac{\partial x}{\partial \xi} P\left( \rho \frac{\partial x}{\partial \xi} \right)^{ -2} \left( \frac{\partial x}{\partial \xi} \right)^{-1} \frac{\partial}{\partial \xi}\left(\rho \frac{\partial x}{\partial \xi}\right)
+$$
+
+Choose $P = (\rho x_\xi)^2$:
+
+$$
+(\text{MMPDE5}): \quad \frac{\partial x}{\partial t} = \frac{1}{\tau} \frac{\partial}{\partial \xi} \left(\rho \frac{\partial x}{\partial \xi}\right)
+$$
+
+Another choise of $P = (\rho x_\xi)^2 / \rho$ to make mesh more spatially balanced throughout the physical domain:
+
+$$
+(\text{modified MMPDE5}): \frac{\partial x}{\partial t} = \frac{1}{\tau \rho}\frac{\partial}{\partial \xi} \left( \rho \frac{\partial x}{\partial \xi}\right)
+$${#eq-mod-mmpde-5}
+
+
+Dicretization of @eq-mod-mmpde-5 can be done with *central finite differences* on *uniform computational mesh* on 
+
+$$
+\frac{dx_j}{dt} = \frac{1}{\rho_j \tau \Delta \xi^2} \left[ \frac{\rho_{j+1} + \rho_j}{2}(x_{j+1} - x_j) - \frac{\rho_j + \rho_{j-1}}{2} (x_{j} - x_{j-1}) \right]
+$${#eq-discretized-mmpde-5}
+
+where $x_j = x(\xi_j, t)$, $\rho_j = \rho(x_j, t)$, and $\Delta \xi = \xi_{j+1} - \xi_j$.
+
+for $j=2, \dots, N-1$, $x_j \approx x(\xi_i, t)$ and $\rho_j = \rho(x_j,t)$. The dependence of $rho$ on $x$ and $t$ is by physical solution $u=u(x,t)$ such that 
+
+$$
+\rho_j = \rho(u(x_j, t))
+$$
+
+## Example 2.3.1
+
+Use  @eq-mod-mmpde-5 to solve @sec-example-2-2-1
+
+```{julia}
+#| warning: false
+{{< include code/example_2_3_1.jl >}}
+```
+
+
+
+## MMPDE as inverse corrdintate tranformation ^[[@huang2011, p. 50]]
+
+Use inverse coordinate transformation $\xi(x,t)$: 
+
+$$
+(\text{MMPDE5xi})\quad \frac{\partial \xi}{\partial t} = \frac{1}{\tau} \frac{\partial}{\partial}(\frac{1}{\rho}\frac{\partial \xi}{\partial x})
+$${#eq-mmpde5xi}
+
+|Physical mesh|Computational mesh|
+|---|---|
+|$\mathcal{J}_{h}^{n}: x_{j}^{n}\approx x(\xi_j, t_n), j=1,\dots, N$|$\mathcal{J}_{h}^{c}: \xi_j = \frac{j-1}{N-1}, j=1,\dots, N$|
+
+Discretization of @eq-mmpde5xi becomes 
+
+$$
+\begin{split}
+\frac{\xi^{n+1}_j - \xi^{n}_{j}}{\Delta t} &= \frac{2}{\tau (x^{n}_{j+1} - x^{n}_{j-1})} \left( \frac{\xi^{n+1}_{j+1} - \xi^{n+1}_{j}}{x^{n}_{j+1} - x^{n}_j}\frac{2}{\rho^{n}_{j+1} + \rho^{n}_{j}}\\
+- \frac{\xi^{n+1}_j - \xi^{n+1}_{j-1}}{x^{n}_j - x^{n}_{j-1}} \frac{2}{\rho^{n}_j + \rho^{n}_{j-1}}\right)
+\end{split}
+$${#eq-xi-d}
+
+boundary conditions 
+
+$$
+\begin{split}
+    \xi^{n+1}_1 &= 0\\
+    \xi^{n+1}_N &= 1
+\end{split}
+$${#eq-xi-bc}
+
+@eq-xi-d and @eq-xi-bc gives new computational mesh:
+
+$$
+\mathcal{J}^{c, n+1}_h : \xi^{n+1}_j, j = 1, \dots, N
+$$
+
+Since mesh density function is computed at $t=t_n$. $\rho^{n}_j = \rho(x^{n}_j, t_n)$. Thus
+
+- @eq-xi-d is linear 
+- There is time lagging problem
+
+
+**Advantages of inverse coordinate transformation**
+
+|Physical to Comp.|Comp. to Physical|
+|---|---|
+|$\frac{d}{d\xi}\left(\rho(x(\xi))\frac{dx(\xi)}{d\xi}\right)=0$|$\frac{d}{dx}\left(\frac{1}{\rho(x)} \frac{d\xi(x)}{dx}\right)=0$|
+|Quasi-linear second-order DE|Linear second-order DE|
+||Linearity -> easy to ensure existence, uniqueness and well-poseness in multi-dimensions|
+
+### Example 2.3.2
+
+Assume $\tau=1$, use MMPDE5xi [@eq-mmpde5xi] to solve @sec-example-2-2-1
+
+```{julia}
+#| warning: false
+{{< include code/example_2_3_2.jl >}}
+```
+
+
+:::{.callout-note}
+## Why does $\xi$ move in time?
+
+@eq-xi-d might be counterintuitive in the beginning. This can be interptet as: 
+
+1. The mapping of $\xi$ to $x$ is not optimal when progresses in time. So every time step, we use $x^{n}$ and $\xi^{n+1}$ to approximate the mapping.
+2. Another equidistribution at $n+1$ is achieved by mapping $x^{n+1}$ from uniform $\xi$
+
+:::

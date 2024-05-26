@@ -1,0 +1,7 @@
+---
+title: "Preface"
+author: "Steven Shao-Ting Chiu (stchiu@tamu.edu)"
+date: today
+---
+
+This book is a collection of notes and exercieses for the textbook "Adaptive Moving Mesh Methods" [@huang2011] with Julia Implementation.  The source code of the book can be found at [MMPDELab](https://whuang.ku.edu/MMPDElab/mmpdelabv1.html) in Matlab.
