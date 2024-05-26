@@ -145,7 +145,7 @@ function f!(dy, y, p, t)
     dy[1:end] = [dxdt; dudt]
 end
 
-function main(ngrid)
+function main(ngrid, solver)
     τ = 1e-2
     ϵ = 1e-4
     tspan = (0., 1.0)
@@ -158,7 +158,7 @@ function main(ngrid)
 
     f = ODEFunction(f!)#; jac_prototype = float.(jac_sparsity))
     prob = ODEProblem(f, y0, tspan, p)
-    sol = solve(prob, Kvaerno3(), reltol=1e-8, abstol=1e-8)
+    sol = solve(prob, solver, reltol=1e-8, abstol=1e-8)
     return sol
 end
 
@@ -192,6 +192,7 @@ end
 
 
 ngrid=41
-@time sol = main(ngrid);
+solver = Kvaerno3()
+@time sol = main(ngrid, solver);
 plot_sol(sol, ngrid);
 plot_grids(sol, ngrid);
