@@ -1,0 +1,12 @@
+---
+title: "Chapter 1"
+subtitle: "Overview"
+jupyter: julia-1.10
+---
+
+## Burger's Equation
+
+```{julia}
+#| warning: false
+{{< include code/example_1.jl >}}
+```
